@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                      http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.9.xsd">
+
+    <changeSet id="generation" author="mrartur0074">
+        <sql splitStatements="false">
+            <![CDATA[
+                CREATE OR REPLACE PROCEDURE generate_weekly_slots()
+                LANGUAGE plpgsql AS $$
+                DECLARE day_record RECORD;
+                min_date DATE := CURRENT_DATE;
+                max_date DATE := CURRENT_DATE + INTERVAL '7 days';
+                BEGIN
+                    DELETE FROM time_slots WHERE date < CURRENT_DATE;
+
+                    FOR day_record IN
+                        SELECT c.date, c.template_id FROM calendar c
+                        WHERE c.date BETWEEN min_date AND max_date
+                          AND NOT EXISTS (
+                            SELECT 1 FROM time_slots ts
+                            WHERE ts.date = c.date
+                        )
+                        ORDER BY c.date
+                            LOOP
+                        CONTINUE WHEN day_record.template_id = 2;
+
+                        INSERT INTO time_slots (date, start_time, end_time, max_visitors, current_visitors, is_available)
+                        SELECT
+                            day_record.date,
+                            start_time,
+                            end_time,
+                            max_visitors,
+                            0,
+                            true
+                        FROM time_slots_template
+                        WHERE template_id = day_record.template_id;
+                    END LOOP;
+
+                        UPDATE time_slots ts
+                        SET is_available = (ts.current_visitors < ts.max_visitors)
+                        WHERE ts.date BETWEEN min_date AND max_date;
+                END;
+            $$;
+            ]]>
+        </sql>
+    </changeSet>
+</databaseChangeLog>

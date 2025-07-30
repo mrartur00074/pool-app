@@ -1,0 +1,177 @@
+databaseChangeLog:
+  - changeSet:
+      id: 1
+      author: mrartur0074
+      changes:
+        - createTable:
+            tableName: users
+            columns:
+              - column:
+                  name: user_id
+                  type: serial
+                  constraints:
+                    primaryKey: true
+              - column:
+                  name: name
+                  type: varchar(100)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: email
+                  type: varchar(100)
+                  constraints:
+                    nullable: false
+                    unique: true
+              - column:
+                  name: created_at
+                  type: timestamp
+                  defaultValueComputed: CURRENT_TIMESTAMP
+
+        - createTable:
+            tableName: day_templates
+            columns:
+              - column:
+                  name: template_id
+                  type: serial
+                  constraints:
+                    primaryKey: true
+              - column:
+                  name: template_name
+                  type: varchar(50)
+                  constraints:
+                    nullable: false
+
+        - createTable:
+            tableName: time_slots_template
+            columns:
+              - column:
+                  name: slot_template_id
+                  type: serial
+                  constraints:
+                    primaryKey: true
+              - column:
+                  name: template_id
+                  type: integer
+                  constraints:
+                    nullable: false
+                    foreignKeyName: fk_template
+                    references: day_templates(template_id)
+              - column:
+                  name: start_time
+                  type: time
+                  constraints:
+                    nullable: false
+              - column:
+                  name: end_time
+                  type: time
+                  constraints:
+                    nullable: false
+              - column:
+                  name: max_visitors
+                  type: integer
+                  defaultValue: "10"
+                  constraints:
+                    nullable: false
+              - column:
+                  name: is_available
+                  type: boolean
+                  defaultValue: "true"
+
+        - createTable:
+            tableName: calendar
+            columns:
+              - column:
+                  name: date
+                  type: date
+                  constraints:
+                    primaryKey: true
+              - column:
+                  name: template_id
+                  type: integer
+                  constraints:
+                    nullable: false
+                    foreignKeyName: fk_calendar_template
+                    references: day_templates(template_id)
+              - column:
+                  name: custom_max_visitors
+                  type: integer
+              - column:
+                  name: custom_open
+                  type: boolean
+
+        - createTable:
+            tableName: time_slots
+            columns:
+              - column:
+                  name: slot_id
+                  type: serial
+                  constraints:
+                    primaryKey: true
+              - column:
+                  name: date
+                  type: date
+                  constraints:
+                    nullable: false
+                    foreignKeyName: fk_slot_date
+                    references: calendar(date)
+              - column:
+                  name: start_time
+                  type: time
+                  constraints:
+                    nullable: false
+              - column:
+                  name: end_time
+                  type: time
+                  constraints:
+                    nullable: false
+              - column:
+                  name: max_visitors
+                  type: integer
+                  constraints:
+                    nullable: false
+              - column:
+                  name: current_visitors
+                  type: integer
+                  defaultValue: "0"
+              - column:
+                  name: is_available
+                  type: boolean
+                  defaultValue: "true"
+
+        - createTable:
+            tableName: bookings
+            columns:
+              - column:
+                  name: booking_id
+                  type: serial
+                  constraints:
+                    primaryKey: true
+              - column:
+                  name: user_id
+                  type: integer
+                  constraints:
+                    nullable: false
+                    foreignKeyName: fk_booking_user
+                    references: users(user_id)
+              - column:
+                  name: slot_id
+                  type: integer
+                  constraints:
+                    nullable: false
+                    foreignKeyName: fk_booking_slot
+                    references: time_slots(slot_id)
+              - column:
+                  name: booking_date
+                  type: timestamp
+                  defaultValueComputed: CURRENT_TIMESTAMP
+              - column:
+                  name: status
+                  type: varchar(20)
+                  defaultValue: "active"
+                  constraints:
+                    nullable: false
+
+        - addUniqueConstraint:
+            tableName: bookings
+            columnNames: user_id, slot_id
+            constraintName: uk_user_slot

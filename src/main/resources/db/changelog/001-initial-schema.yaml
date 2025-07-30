@@ -4,10 +4,10 @@ databaseChangeLog:
       author: mrartur0074
       changes:
         - createTable:
-            tableName: users
+            tableName: clients
             columns:
               - column:
-                  name: user_id
+                  name: client_id
                   type: serial
                   constraints:
                     primaryKey: true
@@ -147,12 +147,12 @@ databaseChangeLog:
                   constraints:
                     primaryKey: true
               - column:
-                  name: user_id
+                  name: client_id
                   type: integer
                   constraints:
                     nullable: false
-                    foreignKeyName: fk_booking_user
-                    references: users(user_id)
+                    foreignKeyName: fk_booking_client
+                    references: clients(client_id)
               - column:
                   name: slot_id
                   type: integer
@@ -173,5 +173,5 @@ databaseChangeLog:
 
         - addUniqueConstraint:
             tableName: bookings
-            columnNames: user_id, slot_id
-            constraintName: uk_user_slot
+            columnNames: client_id, slot_id
+            constraintName: uk_client_slot

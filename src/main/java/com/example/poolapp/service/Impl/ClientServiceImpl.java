@@ -4,6 +4,7 @@ import com.example.poolapp.dto.ClientDto;
 import com.example.poolapp.dto.request.CreateClientDto;
 import com.example.poolapp.dto.request.UpdateClientDto;
 import com.example.poolapp.dto.response.ClientShortDto;
+import com.example.poolapp.exception.ResourceNotFoundException;
 import com.example.poolapp.exception.clients.ClientNotFoundException;
 import com.example.poolapp.exception.clients.DuplicateClientException;
 import com.example.poolapp.model.Client;
@@ -67,5 +68,11 @@ public class ClientServiceImpl implements ClientService {
         clientDto.updateEntity(client);
 
         return ClientDto.toDto(client);
+    }
+
+    @Override
+    public Client getClientOrThrow(Long clientId) {
+        return clientRepository.findById(clientId)
+                .orElseThrow(() -> new ResourceNotFoundException("Клиент не найден"));
     }
 }

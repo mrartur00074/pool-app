@@ -49,3 +49,23 @@ databaseChangeLog:
                 (3, '16:00', '17:00', 10),
                 (3, '17:00', '18:00', 10),
                 (3, '18:00', '19:00', 10);
+              
+
+        - sql:
+            sql: >
+              INSERT INTO clients (name, email, phone) VALUES
+                ('Иванов Иван', 'ivanov@example.com', '+79999999999'),
+                ('Петров Петр', 'petrov@example.com', '+79999999998'),
+                ('Сидорова Анна', 'sidorova@example.com', '+79999999997'),
+                ('Кузнецов Дмитрий', 'kuznetsov@example.com', '+79999999996'),
+                ('Смирнова Елена', 'smirnova@example.com', '+79999999995'),
+                ('Федоров Михаил', 'fedorov@example.com', '+79999999994'),
+                ('Николаева Ольга', 'nikolaeva@example.com', '+79999999993'),
+                ('Васильев Алексей', 'vasiliev@example.com', '+79999999992'),
+                ('Павлова Татьяна', 'pavlova@example.com', '+79999999991'),
+                ('Семенов Сергей', 'semenov@example.com', '+79999999990'),
+                ('Макарова Наталья', 'makarova@example.com', '+79999999900'),
+                ('Орлов Андрей', 'orlov@example.com', '+79999999901'),
+                ('Антонова Ирина', 'antonova@example.com', '+799999999055'),
+                ('Тарасов Виктор', 'tarasov@example.com', '+799999999999'),
+                ('Белова Мария', 'belova@example.com', '+79999999988');

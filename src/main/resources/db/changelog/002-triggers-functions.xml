@@ -9,14 +9,14 @@
         <sql splitStatements="false">
             <![CDATA[
             CREATE OR REPLACE FUNCTION update_visitors_count()
-RETURNS TRIGGER AS $func$
+            RETURNS TRIGGER AS $func$
             BEGIN
-  IF TG_OP = 'INSERT' THEN
-            UPDATE time_slots SET current_visitors = current_visitors + 1 WHERE slot_id = NEW.slot_id;
-            ELSIF TG_OP = 'DELETE' AND OLD.status = 'active' THEN
-            UPDATE time_slots SET current_visitors = current_visitors - 1 WHERE slot_id = OLD.slot_id;
-            END IF;
-            RETURN NULL;
+                IF TG_OP = 'INSERT' THEN
+                    UPDATE time_slots SET current_visitors = current_visitors + 1 WHERE slot_id = NEW.slot_id;
+                    ELSIF TG_OP = 'DELETE' AND OLD.status = 'active' THEN
+                    UPDATE time_slots SET current_visitors = current_visitors - 1 WHERE slot_id = OLD.slot_id;
+                END IF;
+                RETURN NULL;
             END;
             $func$ LANGUAGE plpgsql;
             ]]>
@@ -28,23 +28,6 @@ RETURNS TRIGGER AS $func$
                 AFTER INSERT OR DELETE ON bookings
                 FOR EACH ROW
                 EXECUTE FUNCTION update_visitors_count();
-            ]]>
-        </sql>
-
-        <sql splitStatements="false">
-            <![CDATA[
-            CREATE OR REPLACE FUNCTION reserve_slot(p_user_id INTEGER, p_slot_id INTEGER)
-RETURNS BOOLEAN AS $func$
-            DECLARE
-            v_success BOOLEAN;
-            BEGIN
-            INSERT INTO bookings (user_id, slot_id)
-            VALUES (p_user_id, p_slot_id)
-                ON CONFLICT DO NOTHING
-  RETURNING TRUE INTO v_success;
-            RETURN COALESCE(v_success, FALSE);
-            END;
-            $func$ LANGUAGE plpgsql;
             ]]>
         </sql>
     </changeSet>

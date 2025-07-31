@@ -1,9 +1,13 @@
 package com.example.poolapp.dto;
 
 import com.example.poolapp.model.Client;
+import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 @Data
+@AllArgsConstructor
+@NoArgsConstructor
 public class ClientDto {
     private Long id;
     private String name;

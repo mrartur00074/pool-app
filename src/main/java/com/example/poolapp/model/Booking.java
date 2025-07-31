@@ -11,6 +11,12 @@ import java.time.LocalDateTime;
 @Getter
 @Setter
 public class Booking {
+    public enum Status {
+        active,
+        cancelled,
+        completed,
+    }
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "booking_id")
@@ -27,6 +33,11 @@ public class Booking {
     @Column(name = "booking_date", nullable = false)
     private LocalDateTime bookingDate = LocalDateTime.now();
 
-    @Column(name = "status", nullable = false, length = 20)
-    private String status = "active";
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private Status status = Status.active;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "order_id")
+    private Order order;
 }

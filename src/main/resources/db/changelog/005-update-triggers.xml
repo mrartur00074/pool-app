@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                      http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.9.xsd">
+
+    <changeSet id="update_triggers_v2" author="mrartur0074">
+        <sql splitStatements="false">
+            <![CDATA[
+            DROP TRIGGER IF EXISTS after_booking_change ON bookings;
+            ]]>
+        </sql>
+
+        <sql splitStatements="false">
+            <![CDATA[
+            CREATE OR REPLACE FUNCTION update_visitors_count()
+            RETURNS TRIGGER AS $func$
+            BEGIN
+                IF TG_OP = 'INSERT' THEN
+            UPDATE time_slots
+            SET
+                current_visitors = current_visitors + 1,
+                is_available = (current_visitors + 1 < max_visitors)
+            WHERE slot_id = NEW.slot_id;
+
+            ELSIF TG_OP = 'DELETE' AND OLD.status = 'active' THEN
+            UPDATE time_slots
+            SET
+                current_visitors = current_visitors - 1,
+                is_available = TRUE
+            WHERE slot_id = OLD.slot_id;
+
+            ELSIF TG_OP = 'UPDATE' AND OLD.status = 'active' AND NEW.status != 'active' THEN
+            UPDATE time_slots
+            SET
+                current_visitors = current_visitors - 1,
+                is_available = TRUE
+            WHERE slot_id = OLD.slot_id;
+
+            ELSIF TG_OP = 'UPDATE' AND OLD.status != 'active' AND NEW.status = 'active' THEN
+            UPDATE time_slots
+            SET
+                current_visitors = current_visitors + 1,
+                is_available = (current_visitors + 1 < max_visitors)
+            WHERE slot_id = NEW.slot_id;
+            END IF;
+            RETURN NULL;
+            END;
+            $func$ LANGUAGE plpgsql;
+            ]]>
+        </sql>
+
+        <sql splitStatements="false">
+            <![CDATA[
+            CREATE TRIGGER after_booking_change
+                AFTER INSERT OR DELETE OR UPDATE OF status ON bookings
+                FOR EACH ROW
+                EXECUTE FUNCTION update_visitors_count();
+            ]]>
+        </sql>
+    </changeSet>
+</databaseChangeLog>

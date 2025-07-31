@@ -23,6 +23,12 @@ databaseChangeLog:
                     nullable: false
                     unique: true
               - column:
+                  name: phone
+                  type: varchar(20)
+                  constraints:
+                    nullable: false
+                    unique: true
+              - column:
                   name: created_at
                   type: timestamp
                   defaultValueComputed: CURRENT_TIMESTAMP
@@ -139,6 +145,33 @@ databaseChangeLog:
                   defaultValue: "true"
 
         - createTable:
+            tableName: orders
+            columns:
+              - column:
+                  name: order_id
+                  type: uuid
+                  defaultValueComputed: "gen_random_uuid()"
+                  constraints:
+                    primaryKey: true
+              - column:
+                  name: client_id
+                  type: integer
+                  constraints:
+                    nullable: false
+                    foreignKeyName: fk_order_client
+                    references: clients(client_id)
+              - column:
+                  name: created_at
+                  type: timestamp
+                  defaultValueComputed: CURRENT_TIMESTAMP
+              - column:
+                  name: status
+                  type: varchar(20)
+                  defaultValue: "ACTIVE"
+                  constraints:
+                    nullable: false
+
+        - createTable:
             tableName: bookings
             columns:
               - column:
@@ -170,8 +203,10 @@ databaseChangeLog:
                   defaultValue: "active"
                   constraints:
                     nullable: false
-
-        - addUniqueConstraint:
-            tableName: bookings
-            columnNames: client_id, slot_id
-            constraintName: uk_client_slot
+              - column:
+                  name: order_id
+                  type: uuid
+                  constraints:
+                    foreignKeyName: fk_booking_order
+                    references: orders(order_id)
+                    nullable: false

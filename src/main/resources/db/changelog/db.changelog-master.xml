@@ -8,5 +8,5 @@
     <include file="/db/changelog/002-triggers-functions.xml"/>
     <include file="db/changelog/003-base-templates.yaml"/>
     <include file="/db/changelog/004-weekly-slots-generation.xml"/>
-    <include file="/db/changelog/005-add-phone-column-clients.yaml"/>
+    <include file="/db/changelog/005-update-triggers.xml"/>
 </databaseChangeLog>

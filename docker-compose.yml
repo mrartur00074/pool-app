@@ -13,17 +13,17 @@ services:
     networks:
       - pool-network
 
-#  backend:
-#    build:
-#      context: .
-#      dockerfile: Dockerfile
-#    container_name: pool_backend
-#    ports:
-#      - "${APP_PORT}:8080"
-#    depends_on:
-#      - postgres
-#    networks:
-#      - pool-network
+  backend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: pool_backend
+    ports:
+      - "8080:8080"
+    depends_on:
+      - postgres
+    networks:
+      - pool-network
 
 volumes:
   postgres_data:

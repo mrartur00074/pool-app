@@ -17,6 +17,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -35,7 +36,10 @@ public class OrderServiceImpl implements OrderService {
         Client client = clientRepository.findById(clientId)
                 .orElseThrow(() -> new ResourceNotFoundException("Клиент не найден"));
 
-        validateNoActiveOrdersToday(clientId);
+        TimeSlot firstSlot = timeSlotRepository.findById(slotIds.get(0))
+                .orElseThrow(() -> new ResourceNotFoundException("Слот не найден"));
+
+        validateNoExistingOrdersForVisitDate(clientId, firstSlot.getCalendar().getDate());
 
         Order order = new Order();
         order.setClient(client);
@@ -59,7 +63,7 @@ public class OrderServiceImpl implements OrderService {
         return convertToOrderResponse(savedOrder);
     }
 
-    private void validateNoActiveOrdersToday(Long clientId) {
+    /*private void validateNoActiveOrdersToday(Long clientId) {
         LocalDate today = LocalDate.now();
         boolean hasActiveOrder = orderRepository.existsByClientIdAndCreatedAtBetweenAndStatus(
                 clientId,
@@ -69,6 +73,16 @@ public class OrderServiceImpl implements OrderService {
         );
         if (hasActiveOrder) {
             throw new BusinessLogicException("Разрешён только один активный заказ в день");
+        }
+    }*/
+
+    private void validateNoExistingOrdersForVisitDate(Long clientId, LocalDate visitDate) {
+        boolean hasExistingOrder = orderRepository.existsActiveOrderForDate(
+                clientId,
+                visitDate
+        );
+        if (hasExistingOrder) {
+            throw new BusinessLogicException("Вы уже записаны на эту дату посещения");
         }
     }
 
@@ -90,6 +104,7 @@ public class OrderServiceImpl implements OrderService {
                 bookingInfos
         );
     }
+
 
     @Override
     @Transactional

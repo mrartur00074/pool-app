@@ -49,7 +49,7 @@ public class TimeConverter {
         try {
             DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
             return LocalDateTime.parse(datetime, formatter);
-        } catch (DateTimeParseException e) {
+        } catch (DateTimeParseException | NullPointerException e) {
             throw new BusinessLogicException("Неверный формат даты и времени. Используйте формат: ГГГГ-ММ-ДД ЧЧ:ММ");
         }
     }

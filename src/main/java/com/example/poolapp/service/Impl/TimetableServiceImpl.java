@@ -10,6 +10,7 @@ import com.example.poolapp.repository.TimeSlotRepository;
 import com.example.poolapp.service.TimetableService;
 import com.example.poolapp.util.TimeConverter;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
@@ -20,6 +21,7 @@ import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class TimetableServiceImpl implements TimetableService {
     private final TimeSlotRepository timeSlotRepository;
     private final BookingRepository bookingRepository;
@@ -77,13 +79,16 @@ public class TimetableServiceImpl implements TimetableService {
         LocalTime poolOpensAt = allDaySlots.get(0).getStartTime().toLocalTime();
         LocalTime poolClosesAt = allDaySlots.get(allDaySlots.size()-1).getEndTime().toLocalTime();
 
-        if (startTime.isBefore(poolOpensAt) || endTime.isAfter(poolClosesAt)) {
+        boolean isBeforeOpening = startTime.isBefore(poolOpensAt);
+        boolean isAfterClosing = endTime.isAfter(poolClosesAt);
+
+        if (isBeforeOpening || isAfterClosing) {
             throw new BusinessLogicException(
                     String.format("Бассейн работает с %s до %s", poolOpensAt, poolClosesAt));
         }
     }
 
-    private void validateSlotsContinuity(List<TimeSlot> slots) {
+    public void validateSlotsContinuity(List<TimeSlot> slots) {
         for (int i = 1; i < slots.size(); i++) {
             if (!slots.get(i-1).getEndTime().equals(slots.get(i).getStartTime())) {
                 throw new BusinessLogicException("В выбранном периоде есть временные пропуски");
@@ -91,7 +96,7 @@ public class TimetableServiceImpl implements TimetableService {
         }
     }
 
-    private TimeSlotResponse convertToTimeSlotResponse(TimeSlot slot) {
+    public TimeSlotResponse convertToTimeSlotResponse(TimeSlot slot) {
         TimeSlotResponse response = new TimeSlotResponse();
         response.setSlotId(slot.getId());
         response.setDate(slot.getCalendar().getDate());
